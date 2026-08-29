@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avalanche Gaming — Bakımda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #08080b;
+    --bg-panel: #111116;
+    --bg-panel-2: #16161d;
+    --line: #232329;
+    --text: #f4f4f6;
+    --text-dim: #8b8b96;
+    --text-dimmer: #55555f;
+    --pink: #ff2f92;
+    --pink-2: #ff6fb0;
+    --pink-dim: #ff2f9233;
+    --amber: #ffb020;
+    --grid-opacity: 0.5;
+  }
+
+  html[data-theme="light"]{
+    --bg: #f6f5f8;
+    --bg-panel: #ffffff;
+    --bg-panel-2: #fbf7fa;
+    --line: #e5e1e8;
+    --text: #17151b;
+    --text-dim: #6b6774;
+    --text-dimmer: #9a96a1;
+    --pink: #e91e83;
+    --pink-2: #ff5fa8;
+    --pink-dim: #e91e8322;
+    --amber: #c97a00;
+    --grid-opacity: 0.35;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{ transition: background 0.3s ease; }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.35s ease, color 0.35s ease;
+  }
+
+  /* ambient grid + noise backdrop */
+  .backdrop{
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 0%, transparent 75%);
+    opacity: var(--grid-opacity);
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .glow{
+    position: fixed;
+    width: 900px; height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--pink-dim) 0%, transparent 70%);
+    top: -400px; left: 50%; transform: translateX(-50%);
+    pointer-events: none;
+    filter: blur(10px);
+    transition: background 0.35s ease;
+  }
+
+  header{
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px 5vw;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Rajdhani',sans-serif;
+    font-weight:700;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+  }
+  .logo .mark{
+    width: 30px; height:30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--pink), #8b1a5c);
+    display:flex;align-items:center;justify-content:center;
+    font-size: 15px;
+    box-shadow: 0 0 20px var(--pink-dim);
+  }
+
+  .header-right{
+    display:flex; align-items:center; gap:12px;
+  }
+
+  .status-chip{
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.05em;
+    color: var(--text-dim);
+    border:1px solid var(--line);
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--bg-panel);
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.35; transform:scale(0.8);}
+  }
+
+  /* theme toggle */
+  .theme-toggle{
+    position: relative;
+    width: 56px; height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--bg-panel);
+    cursor: pointer;
+    display:flex; align-items:center;
+    padding: 3px;
+    flex-shrink: 0;
+  }
+  .theme-toggle .knob{
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--pink-2));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+    font-size: 12px;
+    transform: translateX(0);
+    transition: transform 0.28s cubic-bezier(.65,-0.02,.35,1.4), background 0.3s ease;
+    box-shadow: 0 0 10px var(--pink-dim);
+  }
+  html[data-theme="light"] .theme-toggle .knob{
+    transform: translateX(26px);
+  }
+  .theme-toggle svg{ width: 13px; height: 13px; }
+
+  main{
+    position: relative; z-index: 2;
+    min-height: calc(100vh - 84px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding: 60px 20px 80px;
+  }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    color: var(--pink-2);
+    background: var(--pink-dim);
+    border: 1px solid rgba(255,47,146,0.35);
+    padding: 6px 16px 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 30px;
+  }
+
+  h1{
+    font-family:'Rajdhani',sans-serif;
+    font-weight: 700;
+    font-size: clamp(46px, 8vw, 96px);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    background: linear-gradient(180deg, var(--text) 0%, var(--text) 40%, var(--text-dim) 130%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+  }
+  h1 .accent{
+    background: linear-gradient(90deg, var(--pink) 0%, var(--pink-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .subtitle{
+    max-width: 560px;
+    margin: 22px auto 0;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .subtitle b{ color: var(--text); font-weight: 600; }
+
+  /* console / progress panel — the signature element */
+  .console{
+    margin-top: 46px;
+    width: min(560px, 90vw);
+    background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 24px 24px;
+    text-align: left;
+    box-shadow: 0 0 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+  .console-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 16px;
+  }
+  .console-head .label{
+    font-family:'JetBrains Mono',monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--text-dimmer);
+    text-transform: uppercase;
+  }
+  .console-head .pct{
+    font-family:'JetBrains Mono',monospace;
+    font-size: 13px;
+    color: var(--pink-2);
+    font-weight: 500;
+    animation: pctPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pctPulse{
+    0%,100%{ opacity: 1; }
+    50%{ opacity: 0.55; }
+  }
+  .bar-track{
+    height: 8px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .bar-fill{
+    height: 100%;
+    width: 78%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--pink) 0%, var(--pink-2) 100%);
+    box-shadow: 0 0 12px var(--pink);
+    position: relative;
+    animation: stuckGlow 1.8s ease-in-out infinite;
+    overflow: hidden;
+  }
+  .bar-fill::after{
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+    width: 60%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes shimmer{
+    0%{ transform: translateX(-120%); }
+    100%{ transform: translateX(220%); }
+  }
+  @keyframes stuckGlow{
+    0%,100%{ box-shadow: 0 0 10px var(--pink); }
+    50%{ box-shadow: 0 0 20px var(--pink), 0 0 6px var(--pink-2); }
+  }
+
+  .log{
+    margin-top: 18px;
+    font-family:'JetBrains Mono',monospace;
+    font-size: 12.5px;
+    color: var(--text-dimmer);
+    line-height: 1.9;
+    border-top: 1px dashed var(--line);
+    padding-top: 14px;
+  }
+  .log span.ok{ color: #24a35a; }
+  .log span.busy{ color: var(--amber); }
+  .log .cursor{
+    display:inline-block; width:7px; height:13px;
+    background: var(--pink-2);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .actions{
+    margin-top: 34px;
+    display:flex; gap: 14px; flex-wrap: wrap; justify-content:center;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:'Inter',sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 13px 24px;
+    border-radius: 10px;
+    text-decoration:none;
+    cursor:pointer;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+
+  .btn.primary{
+    background: linear-gradient(90deg, var(--pink) 0%, #e0247a 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(255,47,146,0.28);
+  }
+  .btn.primary::before{
+    content:'';
+    position:absolute; inset:-2px;
+    background: linear-gradient(90deg, var(--pink), var(--pink-2), var(--pink));
+    background-size: 200% 100%;
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    filter: blur(14px);
+    transition: opacity 0.25s ease;
+    animation: sweep 2.5s linear infinite;
+  }
+  .btn.primary:hover::before{ opacity: 0.9; }
+  .btn.primary:hover{
+    box-shadow: 0 0 30px rgba(255,47,146,0.55), 0 0 60px rgba(255,47,146,0.3);
+  }
+  @keyframes sweep{
+    0%{ background-position: 0% 0%; }
+    100%{ background-position: 200% 0%; }
+  }
+
+  .btn.ts3{
+    background: var(--bg-panel);
+    border-color: var(--line);
+    color: var(--text);
+  }
+  .btn.ts3:hover{ border-color: #3a3a44; background: var(--bg-panel-2); }
+
+  .btn svg{ width:16px; height:16px; flex-shrink:0; }
+
+  footer{
+    position: relative; z-index: 2;
+    display:flex; align-items:center; justify-content:center; gap: 18px;
+    flex-wrap: wrap;
+    padding: 22px 5vw 30px;
+    border-top: 1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size: 11.5px;
+    color: var(--text-dimmer);
+    letter-spacing: 0.03em;
+  }
+  footer .sep{ color: var(--line); }
+
+  @media (max-width: 480px){
+    header{ padding: 20px 5vw; }
+    .status-chip span.txt{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="backdrop"></div>
+  <div class="glow"></div>
+
+  <header>
+    <div class="logo">
+      <div class="mark">❄</div>
+      Avalanche Gaming
+    </div>
+    <div class="header-right">
+      <div class="status-chip">
+        <span class="dot"></span>
+        <span class="txt">SUNUCU BAKIMDA</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Görünümü değiştir">
+        <div class="knob">
+          <svg id="knobIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="eyebrow">● CS 1.6 JAILBREAK TOPLULUĞU</div>
+
+    <h1>Bakım<br><span class="accent">Modundayız</span></h1>
+
+    <p class="subtitle">
+      Avalanche Gaming şu anda <b>planlı bakımda</b>. Sunucularımızı ve siteyi
+      senin için daha iyi hale getiriyoruz — çok yakında kaldığımız yerden devam.
+    </p>
+
+    <div class="console">
+      <div class="console-head">
+        <span class="label">İşlem</span>
+        <span class="pct" id="pctLabel">%78</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+      <div class="log">
+        <div><span class="ok">✓</span> jb_avalanche haritası güncellendi</div>
+        <div><span class="ok">✓</span> forum & kadro modülleri yenilendi</div>
+        <div><span class="busy">…</span> sunucu altyapısı optimize ediliyor<span class="cursor"></span></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.youtube.com/@rweqewnickz" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>
+        YouTube'da Bizi İzle
+      </a>
+      <a class="btn ts3" href="ts3server://Avalanche" id="ts3Btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v4"/><path d="M9 22h6"/></svg>
+        Ailemize Hemen Katıl
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <span>Avalanche Gaming</span>
+    <span class="sep">/</span>
+    <span>jb_avalanche</span>
+    <span class="sep">/</span>
+    <span>© 2026</span>
+  </footer>
+
+<script>
+  // theme toggle
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const knobIcon = document.getElementById('knobIcon');
+  const sunPath = '<path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5 5 3.6 3.6M18.4 18.4 20 20M5 19l-1.4 1.4M18.4 5.6 20 4"/><circle cx="12" cy="12" r="4"/>';
+  const moonPath = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
+
+  function applyTheme(theme){
+    root.setAttribute('data-theme', theme);
+    knobIcon.innerHTML = theme === 'light' ? sunPath : moonPath;
+    localStorage.setItem('avalanche-theme', theme);
+  }
+
+  const saved = localStorage.getItem('avalanche-theme');
+  applyTheme(saved || 'dark');
+
+  toggle.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+  });
+</script>
+
+</body>
+</html>
